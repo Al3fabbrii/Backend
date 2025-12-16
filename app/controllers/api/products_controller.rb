@@ -1,5 +1,7 @@
 module Api
   class ProductsController < ApplicationController
+    skip_before_action :authenticate_user! # Products sono privati
+    
     # GET /api/products
     def index
       @products = Product.all.order(created_at: :desc)

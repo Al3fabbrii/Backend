@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_12_135636) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_16_115928) do
   create_table "order_items", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "order_id", null: false
@@ -42,37 +42,24 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_12_135636) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "projects", force: :cascade do |t|
+  create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.text "description"
-    t.string "title"
+    t.string "ip_address"
     t.datetime "updated_at", null: false
+    t.string "user_agent"
     t.integer "user_id", null: false
-    t.index ["user_id"], name: "index_projects_on_user_id"
-  end
-
-  create_table "tasks", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.date "deadline"
-    t.integer "project_id", null: false
-    t.string "status"
-    t.string "title"
-    t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
-    t.index ["project_id"], name: "index_tasks_on_project_id"
-    t.index ["user_id"], name: "index_tasks_on_user_id"
+    t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.string "email"
-    t.string "name"
+    t.string "email_address", null: false
+    t.string "password_digest", null: false
     t.datetime "updated_at", null: false
+    t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
-  add_foreign_key "projects", "users"
-  add_foreign_key "tasks", "projects"
-  add_foreign_key "tasks", "users"
+  add_foreign_key "sessions", "users"
 end
