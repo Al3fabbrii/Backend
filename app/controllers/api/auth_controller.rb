@@ -1,6 +1,6 @@
 module Api
   class AuthController < ApplicationController
-    skip_before_action :authenticate_user!, only: [:login]
+    skip_before_action :authenticate_user!, only: [:login, :register, :logout]
 
     # POST /api/auth/login
     def login
@@ -26,6 +26,19 @@ module Api
     # GET /api/auth/me
     def me
       render json: current_user.as_json
+    end
+    # POST /api/auth/register
+    def register
+      user = User.new(email_address: params[:email], password: params[:password]) 
+      if user.save
+        token = generate_jwt_token(user)
+        render json: {
+          token: token,
+          user: user.as_json
+        }, status: :created
+      else
+        render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+      end
     end
 
     private

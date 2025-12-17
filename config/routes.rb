@@ -5,9 +5,11 @@ Rails.application.routes.draw do
     post 'auth/login', to: 'auth#login'
     post 'auth/logout', to: 'auth#logout'
     get 'auth/me', to: 'auth#me'
+    post 'auth/register', to: 'auth#register'
 
     # Public endpoints
     resources :products, only: [:index, :show]
+
 
     # Protected endpoints (require authentication)
     resources :orders, only: [:index, :create]
