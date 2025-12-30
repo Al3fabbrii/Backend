@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_28_143115) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_29_150028) do
   create_table "cart_items", force: :cascade do |t|
     t.integer "cart_id", null: false
     t.datetime "created_at", null: false
@@ -55,6 +55,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_28_143115) do
     t.decimal "original_price", precision: 10, scale: 2, null: false
     t.decimal "price", precision: 10, scale: 2, null: false
     t.boolean "sale", default: false
+    t.integer "stock", default: 0, null: false
     t.json "tags"
     t.string "thumbnail"
     t.string "title", null: false

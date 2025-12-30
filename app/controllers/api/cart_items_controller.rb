@@ -6,19 +6,29 @@ module Api
     # POST /api/cart/items
     def create
       product = Product.find(params[:product_id])
+      requested_quantity = (params[:quantity] || 1).to_i
 
       # Cerca se il prodotto è già nel carrello
       cart_item = @cart.cart_items.find_by(item_id: product.id)
 
+      # Calcola la quantità totale che verrebbe aggiunta
+      total_quantity = cart_item ? cart_item.quantity + requested_quantity : requested_quantity
+
+      # Verifica che ci sia stock sufficiente
+      if product.stock < total_quantity
+        render json: { error: "Stock insufficiente. Disponibili: #{product.stock}, richiesti: #{total_quantity}" }, status: :unprocessable_entity
+        return
+      end
+
       if cart_item
         # Incrementa quantità
-        cart_item.quantity += params[:quantity].to_i
+        cart_item.quantity += requested_quantity
         cart_item.save!
       else
         # Crea nuovo item
         cart_item = @cart.cart_items.create!(
           item_id: product.id,
-          quantity: params[:quantity] || 1,
+          quantity: requested_quantity,
           unit_price: product.price
         )
       end
@@ -32,7 +42,16 @@ module Api
 
     # PATCH /api/cart/items/:id
     def update
-      @cart_item.update!(quantity: params[:quantity])
+      new_quantity = params[:quantity].to_i
+      product = Product.find(@cart_item.item_id)
+
+      # Verifica che ci sia stock sufficiente
+      if product.stock < new_quantity
+        render json: { error: "Stock insufficiente. Disponibili: #{product.stock}, richiesti: #{new_quantity}" }, status: :unprocessable_entity
+        return
+      end
+
+      @cart_item.update!(quantity: new_quantity)
       render json: @cart.as_json
     rescue ActiveRecord::RecordInvalid => e
       render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity

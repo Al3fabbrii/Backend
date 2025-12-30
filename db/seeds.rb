@@ -32,6 +32,7 @@ mock_data['products'].each do |product|
     sale: product['sale'],
     thumbnail: product['thumbnail'],
     tags: product['tags'],
+    stock: rand(10..100), # Stock casuale tra 10 e 100
     created_at: product['createdAt'],
     updated_at: product['createdAt']
   )
