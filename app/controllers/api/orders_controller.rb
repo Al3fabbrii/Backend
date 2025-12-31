@@ -2,8 +2,57 @@ module Api
   class OrdersController < ApplicationController
     # GET /api/orders
     # Restituisce solo gli ordini dell'utente corrente
+    # Query params:
+    #   - date_from: data minima (ISO 8601)
+    #   - date_to: data massima (ISO 8601)
+    #   - total_min: totale minimo
+    #   - total_max: totale massimo
+    #   - sort: 'date_asc', 'date_desc', 'total_asc', 'total_desc' (default: 'date_desc')
     def index
-      @orders = current_user.orders.includes(order_items: :product).order(created_at: :desc)
+      @orders = current_user.orders.includes(order_items: :product)
+
+      # Filtro per data minima
+      if params[:date_from].present?
+        begin
+          date_from = DateTime.parse(params[:date_from])
+          @orders = @orders.where('created_at >= ?', date_from)
+        rescue ArgumentError
+          # Ignora se la data non è valida
+        end
+      end
+
+      # Filtro per data massima
+      if params[:date_to].present?
+        begin
+          date_to = DateTime.parse(params[:date_to])
+          @orders = @orders.where('created_at <= ?', date_to)
+        rescue ArgumentError
+          # Ignora se la data non è valida
+        end
+      end
+
+      # Filtro per totale minimo
+      if params[:total_min].present?
+        @orders = @orders.where('total >= ?', params[:total_min].to_f)
+      end
+
+      # Filtro per totale massimo
+      if params[:total_max].present?
+        @orders = @orders.where('total <= ?', params[:total_max].to_f)
+      end
+
+      # Ordinamento
+      @orders = case params[:sort]
+                when 'date_asc'
+                  @orders.order(created_at: :asc)
+                when 'total_asc'
+                  @orders.order(total: :asc)
+                when 'total_desc'
+                  @orders.order(total: :desc)
+                else # 'date_desc' o default
+                  @orders.order(created_at: :desc)
+                end
+
       render json: @orders.as_json
     end
 
